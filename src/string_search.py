@@ -5,6 +5,7 @@ import random
 import argparse
 import matplotlib.pyplot as plt
 import naive_search
+import boyer_moore
 
 def get_args():
     parser = argparse.ArgumentParser()
@@ -58,22 +59,20 @@ def run_test(test_function, T, P):
 
     return stop - start, mem[1] - mem[0]
 
-def test_harness(test_functions,
-                 text_size_range,
-                 pattern_size,
-                 rounds):
-
-    run_times = [ [] for _ in range(len(test_functions))]
-    mem_usages = [ [] for _ in range(len(test_functions))]
+def test_harness(test_functions, text_size_range, pattern_size, rounds, pattern_type='random'):
+    run_times = [[] for _ in range(len(test_functions))]
+    mem_usages = [[] for _ in range(len(test_functions))]
 
     for text_size in text_size_range:
+        _run_times = [[] for _ in range(len(test_functions))]
+        _mem_usages = [[] for _ in range(len(test_functions))]
 
-        _run_times = [ [] for _ in range(len(test_functions))]
-        _mem_usages = [ [] for _ in range(len(test_functions))]
-
-        for i in range(rounds):
-            T = get_random_string(['A', 'C', 'T', 'G'], text_size)
-            P = get_random_substring(T, pattern_size)
+        for _ in range(rounds):
+            T = get_random_string(['A', 'C', 'T', 'G'], text_size)  # Generate random text
+            if pattern_type == 'random':
+                P = get_random_string(['A', 'C', 'T', 'G'], pattern_size)
+            elif pattern_type == 'repeated':
+                P = 'A' * pattern_size  # Pattern with repeated characters
 
             for j, test_function in enumerate(test_functions):
                 run_time, mem_usage = run_test(test_function, T, P)
@@ -86,6 +85,7 @@ def test_harness(test_functions,
 
     return run_times, mem_usages
 
+
 def main():
     args = get_args()
 
@@ -93,7 +93,7 @@ def main():
                              args.text_range[1],
                              args.text_range[2])
 
-    test_functions = [naive_search.naive_search]
+    test_functions = [naive_search.naive_search, boyer_moore.boyer_moore_search]
 
 
     run_times, mem_usages = test_harness(test_functions,
@@ -105,6 +105,7 @@ def main():
     fig.tight_layout(pad=3.0)
     ax = axs[0]
     ax.plot(text_size_range, run_times[0], label='Naive')
+    ax.plot(text_size_range, run_times[1], label='Boyer-Moore', linestyle="dashed")
     ax.set_title(f'String Search Performance(|P|= {args.pattern_size})')
     ax.set_xlabel('Text size')
     ax.set_ylabel('Run time (ns)')
@@ -114,6 +115,7 @@ def main():
 
     ax = axs[1]
     ax.plot(text_size_range, mem_usages[0], label='Naive')
+    ax.plot(text_size_range, mem_usages[1], label='Boyer-Moore', linestyle="dashed")  # ADD THIS LINE
     ax.set_xlabel('Text size')
     ax.set_ylabel('Memory (bytes)')
     ax.legend(loc='best', frameon=False, ncol=3)

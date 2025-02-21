@@ -45,6 +45,11 @@ def get_bad_char_table(P):
     #####################################################################
     ## ADD CODE HERE
     #####################################################################
+    m = len(P)
+    
+    for i in range(m):
+        bad_char_table[P[i]] = i
+        
     return bad_char_table
 
 def boyer_moore_search(T, P):
@@ -52,4 +57,36 @@ def boyer_moore_search(T, P):
     #####################################################################
     ## ADD CODE HERE
     #####################################################################
+    m = len(P)
+    n = len(T)
+
+    if m == 0 or n == 0 or m > n:
+        return occurrences
+
+    # Preprocess tables
+    bad_char_table = get_bad_char_table(P)
+    good_suffix_table = get_good_suffix_table(P)
+
+    s = 0  # Shift of the pattern over text
+    while s <= n - m:
+        j = m - 1  # Start comparing from the end of the pattern
+
+        # Move backwards while characters match
+        while j >= 0 and P[j] == T[s + j]:
+            j -= 1
+
+        if j < 0:  # Match found
+            occurrences.append(s)
+            s += good_suffix_table[0]  # Shift based on full match
+        else:
+            # Get shifts from bad character and good suffix heuristics
+            bad_char_shift = j - bad_char_table.get(T[s + j], -1)
+            good_suffix_shift = good_suffix_table.get(m - j - 1, 1)
+            s += max(bad_char_shift, good_suffix_shift)
     return occurrences
+
+if __name__ == "__main__":
+    T = "GCTTAGCTAGGCTAGCTAGC"
+    P = "GCTAGC"
+    occurrences = boyer_moore_search(T, P)
+    print("Pattern found at indices:", occurrences)

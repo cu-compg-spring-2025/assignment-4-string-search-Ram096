@@ -5,7 +5,7 @@
 \begin{document}
 
 \title{String Search}
-\author{Ryan Layer}
+\author{Ramy Kassam}
 \maketitle
 
 \section{Introduction}
@@ -32,6 +32,8 @@ pattern $P$ with the text $T$. As the text size increases, the number of
 possible alignments increases linearly. The algorithm's memory usage remained
 constant because the algorithm only stores the positions of the pattern $P$ in
 the text $T$.
+
+the runtime of the Boyer-Moore string search algorithm increased at a slower rate compared to the naive search algorithm as the text size increased (Figure~\ref{timeandmem}). The Boyer-Moore algorithm benefits from efficient heuristics, namely the bad character rule and good suffix rule, which allow it to skip multiple alignments rather than checking every position in the text sequentially. This results in a sublinear runtime in the best and average cases. However, in the worst case—such as when the pattern consists of repeated substrings that appear frequently in the text—the algorithm's performance approaches that of naive search. Unlike naive search, Boyer-Moore requires additional memory to store preprocessing tables, leading to significantly higher memory usage. The extra memory overhead is due to the bad character and good suffix tables, which allow the algorithm to determine optimal shifts efficiently.
 
 %%%%% Add your experiment here %%%%
 
